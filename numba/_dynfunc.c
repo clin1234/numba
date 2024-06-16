@@ -136,7 +136,7 @@ static PyTypeObject EnvironmentType = {
     0,                                       /* tp_version_tag */
     0,                                       /* tp_finalize */
     0,                                       /* tp_vectorcall */
-#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION == 12)
+#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION >= 12)
 /* This was introduced first in 3.12
  * https://github.com/python/cpython/issues/91051
  */
@@ -146,7 +146,7 @@ static PyTypeObject EnvironmentType = {
 /* WARNING: Do not remove this, only modify it! It is a version guard to
  * act as a reminder to update this struct on Python version update! */
 #if (PY_MAJOR_VERSION == 3)
-#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12))
+#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12) || (PY_MINOR_VERSION == 13))
 #error "Python minor version is not supported."
 #endif
 #else
@@ -255,7 +255,7 @@ static PyTypeObject ClosureType = {
     0,                                       /* tp_version_tag */
     0,                                       /* tp_finalize */
     0,                                       /* tp_vectorcall */
-#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION == 12)
+#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION >= 12)
 /* This was introduced first in 3.12
  * https://github.com/python/cpython/issues/91051
  */
@@ -265,7 +265,7 @@ static PyTypeObject ClosureType = {
 /* WARNING: Do not remove this, only modify it! It is a version guard to
  * act as a reminder to update this struct on Python version update! */
 #if (PY_MAJOR_VERSION == 3)
-#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12))
+#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12) || (PY_MINOR_VERSION == 13))
 #error "Python minor version is not supported."
 #endif
 #else
@@ -400,6 +400,10 @@ generator_dealloc(GeneratorObject *gen)
         PyObject_ClearWeakRefs((PyObject *) gen);
     /* XXX The finalizer may be called after the LLVM module has been
        destroyed (typically at interpreter shutdown) */
+       #if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION >= 13)
+       #include <pylifecycle.h>
+       #define _Py_IsFinalizing Py_IsFinalizing
+       #endif
     if (!_Py_IsFinalizing())
         if (gen->finalizer != NULL)
             gen->finalizer(gen->state);
@@ -475,7 +479,7 @@ static PyTypeObject GeneratorType = {
     0,                                        /* tp_version_tag */
     0,                                        /* tp_finalize */
     0,                                        /* tp_vectorcall */
-#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION == 12)
+#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION >= 12)
 /* This was introduced first in 3.12
  * https://github.com/python/cpython/issues/91051
  */
@@ -485,7 +489,7 @@ static PyTypeObject GeneratorType = {
 /* WARNING: Do not remove this, only modify it! It is a version guard to
  * act as a reminder to update this struct on Python version update! */
 #if (PY_MAJOR_VERSION == 3)
-#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12))
+#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12) || (PY_MINOR_VERSION == 13))
 #error "Python minor version is not supported."
 #endif
 #else

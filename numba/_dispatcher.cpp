@@ -27,7 +27,37 @@
  *
  */
 
-#if (PY_MAJOR_VERSION >= 3) && (PY_MINOR_VERSION == 12)
+#if (PY_MAJOR_VERSION >= 3) && (PY_MINOR_VERSION >= 13)
+
+#ifndef Py_BUILD_CORE
+    #define Py_BUILD_CORE 1
+#endif
+#include "internal/pycore_frame.h"
+// This is a fix suggested in the comments in https://github.com/python/cpython/issues/108216
+// specifically https://github.com/python/cpython/issues/108216#issuecomment-1696565797
+#ifdef HAVE_STD_ATOMIC
+#  undef HAVE_STD_ATOMIC
+#endif
+#undef _PyGC_FINALIZED
+
+/* On Debian-based OSes, silences following error:
+In file included from /usr/include/python3.13/internal/pycore_interp.h:31,
+                 from numba/_dispatcher.cpp:43:
+/usr/include/python3.13/internal/pycore_mimalloc.h:39:10: fatal error: mimalloc/mimalloc.h: No such file or directory
+   39 | #include "mimalloc/mimalloc.h"
+*/
+#ifdef WITH_MIMALLOC
+#  undef WITH_MIMALLOC
+#endif
+
+#include "pyatomic.h"
+#include "internal/pycore_interp.h"
+#include "internal/pycore_pyerrors.h"
+#include "internal/pycore_instruments.h"
+//#include "internal/pycore_call.h"
+#include "cpython/code.h"
+
+#elif (PY_MAJOR_VERSION >= 3) && (PY_MINOR_VERSION == 12)
 
 #ifndef Py_BUILD_CORE
     #define Py_BUILD_CORE 1
@@ -780,7 +810,7 @@ call_cfunc(Dispatcher *self, PyObject *cfunc, PyObject *args, PyObject *kws, PyO
     }
 }
 
-#elif (PY_MAJOR_VERSION >= 3) && (PY_MINOR_VERSION == 12)
+#elif (PY_MAJOR_VERSION >= 3) && ((PY_MINOR_VERSION >= 12))
 
 // Python 3.12 has a completely new approach to tracing and profiling due to
 // the new `sys.monitoring` system.
@@ -1589,7 +1619,7 @@ static PyTypeObject DispatcherType = {
     0,                                           /* tp_version_tag */
     0,                                           /* tp_finalize */
     0,                                           /* tp_vectorcall */
-#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION == 12)
+#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION >= 12)
 /* This was introduced first in 3.12
  * https://github.com/python/cpython/issues/91051
  */
@@ -1599,7 +1629,7 @@ static PyTypeObject DispatcherType = {
 /* WARNING: Do not remove this, only modify it! It is a version guard to
  * act as a reminder to update this struct on Python version update! */
 #if (PY_MAJOR_VERSION == 3)
-#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12))
+#if ! ((PY_MINOR_VERSION == 9) || (PY_MINOR_VERSION == 10) || (PY_MINOR_VERSION == 11) || (PY_MINOR_VERSION == 12) || (PY_MINOR_VERSION == 13))
 #error "Python minor version is not supported."
 #endif
 #else
