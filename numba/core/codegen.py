@@ -103,7 +103,7 @@ class _CFG(object):
         """
         "Pretty" prints the DOT graph of the CFG.
         For explanation of the parameters see the docstring for
-        numba.core.dispatcher::inspect_cfg.
+        numba.core.dispatcher:inspect_cfg.
         """
         import graphviz as gv
         import re
@@ -1070,7 +1070,7 @@ class JitEngine(object):
         self._ee = ee
         # Track symbol defined via codegen'd Module
         # but not any cached object.
-        # NOTE: `llvm::ExecutionEngine` will catch duplicated symbols and
+        # NOTE: `llvm:ExecutionEngine` will catch duplicated symbols and
         # we are not going to protect against that.  A proper duplicated
         # symbol detection will need a more logic to check for the linkage
         # (e.g. like `weak` linkage symbol can override).   This

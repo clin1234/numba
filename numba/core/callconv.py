@@ -423,7 +423,7 @@ class CPUCallConv(BaseCallConv):
         #
         # Comment below details how the struct is used in the case of a dynamic
         # exception. For dynamic exceptions, see
-        # CPUCallConv::set_dynamic_user_exc
+        # CPUCallConv:set_dynamic_user_exc
         #
         # {i8*, ___, ___, ___, ___}
         #   ^  serialized info about the exception (loc, kind, compile time
@@ -651,7 +651,7 @@ class CPUCallConv(BaseCallConv):
         #                                          static info
         #
         # Comment below details how the struct is used in the case of a dynamic
-        # exception. For static exception, see CPUCallConv::set_static_user_exc
+        # exception. For static exception, see CPUCallConv:set_static_user_exc
         #
         # {i8*, ___, ___, ___, ___}
         #   ^  serialized info about the exception (loc, kind, compile time
@@ -717,7 +717,7 @@ class CPUCallConv(BaseCallConv):
     def return_dynamic_user_exc(self, builder, exc, exc_args, nb_types,
                                 loc=None, func_name=None):
         """
-        Same as ::return_user_exc but for dynamic exceptions
+        Same as :return_user_exc but for dynamic exceptions
         """
         self.set_dynamic_user_exc(builder, exc, exc_args, nb_types,
                                   loc=loc, func_name=func_name)

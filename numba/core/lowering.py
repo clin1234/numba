@@ -1360,7 +1360,7 @@ class Lower(BaseLower):
 
         elif expr.op == "build_set":
             # Insert in reverse order, as Python does
-            items = expr.items[::-1]
+            items = expr.items[:-1]
             itemvals = [self.loadvar(i.name) for i in items]
             itemtys = [self.typeof(i.name) for i in items]
             castvals = [self.context.cast(self.builder, val, fromty,

@@ -655,7 +655,7 @@ class CallConstraint(object):
 
         # If the return type is imprecise but can be unified with the
         # target variable's inferred type, use the latter.
-        # Useful for code such as::
+        # Useful for code such as:
         #    s = set()
         #    s.add(1)
         # (the set() call must be typed as int64(), not undefined())

@@ -9,7 +9,7 @@ from numba.core import errors, utils, serialize
 from numba.core.utils import PYVERSION
 
 
-if PYVERSION in ((3, 12), ):
+if PYVERSION in ((3, 12), (3, 13)):
     from opcode import _inline_cache_entries
     # Instruction/opcode length in bytes
     INSTR_LEN = 2
@@ -104,7 +104,7 @@ class ByteCodeInst(object):
         # https://bugs.python.org/issue27129
         # https://github.com/python/cpython/pull/25069
         assert self.is_jump
-        if PYVERSION in ((3, 12), ):
+        if PYVERSION in ((3, 12), (3, 13)):
             if self.opcode in (dis.opmap[k]
                                for k in ["JUMP_BACKWARD"]):
                 return self.offset - (self.arg - 1) * 2
@@ -121,7 +121,7 @@ class ByteCodeInst(object):
         else:
             raise NotImplementedError(PYVERSION)
 
-        if PYVERSION in ((3, 10), (3, 11), (3, 12)):
+        if PYVERSION in ((3, 10), (3, 11), (3, 12), (3, 13)):
             if self.opcode in JREL_OPS:
                 return self.next + self.arg * 2
             else:
@@ -158,6 +158,92 @@ NO_ARG_LEN = 1
 
 OPCODE_NOP = dis.opname.index('NOP')
 
+from _opcode_metadata import (opmap, _specialized_opmap, _specializations)
+
+
+CONVERT_VALUE = opmap['CONVERT_VALUE']
+
+SET_FUNCTION_ATTRIBUTE = opmap['SET_FUNCTION_ATTRIBUTE']
+FUNCTION_ATTR_FLAGS = ('defaults', 'kwdefaults', 'annotations', 'closure')
+
+ENTER_EXECUTOR = opmap['ENTER_EXECUTOR']
+LOAD_CONST = opmap['LOAD_CONST']
+RETURN_CONST = opmap['RETURN_CONST']
+LOAD_GLOBAL = opmap['LOAD_GLOBAL']
+BINARY_OP = opmap['BINARY_OP']
+JUMP_BACKWARD = opmap['JUMP_BACKWARD']
+FOR_ITER = opmap['FOR_ITER']
+SEND = opmap['SEND']
+LOAD_ATTR = opmap['LOAD_ATTR']
+LOAD_SUPER_ATTR = opmap['LOAD_SUPER_ATTR']
+CALL_INTRINSIC_1 = opmap['CALL_INTRINSIC_1']
+CALL_INTRINSIC_2 = opmap['CALL_INTRINSIC_2']
+LOAD_FAST_LOAD_FAST = opmap['LOAD_FAST_LOAD_FAST']
+STORE_FAST_LOAD_FAST = opmap['STORE_FAST_LOAD_FAST']
+STORE_FAST_STORE_FAST = opmap['STORE_FAST_STORE_FAST']
+
+CACHE = opmap["CACHE"]
+
+_all_opname = list(opname)
+_all_opmap = dict(opmap)
+for name, op in _specialized_opmap.items():
+    # fill opname and opmap
+    assert op < len(_all_opname)
+    _all_opname[op] = name
+    _all_opmap[name] = op
+
+deoptmap = {
+    specialized: base for base, family in _specializations.items()
+    for specialized in family
+}
+
+
+def _deoptop(op):
+    name = _all_opname[op]
+    return _all_opmap[deoptmap[name]] if name in deoptmap else op
+
+
+def _get_cache_size(opname):
+    return _inline_cache_entries.get(opname, 0)
+
+
+# Rely on C `int` being 32 bits for oparg
+_INT_BITS = 32
+# Value for c int when it overflows
+_INT_OVERFLOW = 2 ** (_INT_BITS - 1)
+
+
+def _unpack_opargs(code):
+    extended_arg = 0
+    extended_args_offset = 0  # Number of EXTENDED_ARG instructions preceding the current instruction
+    caches = 0
+    for i in range(0, len(code), 2):
+        # Skip inline CACHE entries:
+        if caches:
+            caches -= 1
+            continue
+        op = code[i]
+        deop = _deoptop(op)
+        caches = _get_cache_size(_all_opname[deop])
+        if deop in hasarg:
+            arg = code[i + 1] | extended_arg
+            extended_arg = (arg << 8) if deop == EXTENDED_ARG else 0
+            # The oparg is stored as a signed integer
+            # If the value exceeds its upper limit, it will overflow and wrap
+            # to a negative integer
+            if extended_arg >= _INT_OVERFLOW:
+                extended_arg -= 2 * _INT_OVERFLOW
+        else:
+            arg = None
+            extended_arg = 0
+        if deop == EXTENDED_ARG:
+            extended_args_offset += 1
+            yield (i, i, op, arg)
+        else:
+            start_offset = i - extended_args_offset * 2
+            yield (i, start_offset, op, arg)
+            extended_args_offset = 0
+
 
 # Adapted from Lib/dis.py
 def _unpack_opargs(code):
@@ -176,7 +262,7 @@ def _unpack_opargs(code):
             for j in range(ARG_LEN):
                 arg |= code[i + j] << (8 * j)
             i += ARG_LEN
-            if PYVERSION in ((3, 12), ):
+            if PYVERSION in ((3, 12), (3, 13)):
                 # Python 3.12 introduced cache slots. We need to account for
                 # cache slots when we determine the offset of the next opcode.
                 # The number of cache slots is specific to each opcode and can
@@ -200,7 +286,7 @@ def _unpack_opargs(code):
         else:
             arg = None
             i += NO_ARG_LEN
-            if PYVERSION in ((3, 12), ):
+            if PYVERSION in ((3, 12), (3, 13)):
                 # Python 3.12 introduced cache slots. We need to account for
                 # cache slots when we determine the offset of the next opcode.
                 # The number of cache slots is specific to each opcode and can
@@ -363,7 +449,7 @@ class _ByteCode(object):
 
 
 def _fix_LOAD_GLOBAL_arg(arg):
-    if PYVERSION in ((3, 11), (3, 12)):
+    if PYVERSION in ((3, 11), (3, 12), (3, 13)):
         return arg >> 1
     elif PYVERSION in ((3, 9), (3, 10)):
         return arg
@@ -525,11 +611,20 @@ class ByteCodePy312(ByteCodePy311):
                 work_remaining = True
         return entries
 
+# XXX: find specific changes of decompiled bytecode for 3.13
+
+
+class ByteCodePy313(ByteCodePy312):
+    def __init__(self, func_id):
+        super().__init__(func_id)
+
 
 if PYVERSION == (3, 11):
     ByteCode = ByteCodePy311
 elif PYVERSION == (3, 12):
     ByteCode = ByteCodePy312
+elif PYVERSION == (3, 13):
+    ByteCode = ByteCodePy313
 elif PYVERSION < (3, 11):
     ByteCode = _ByteCode
 else:

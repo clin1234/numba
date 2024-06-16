@@ -69,7 +69,7 @@ def overload(func, jit_options={}, strict=True, inline='never',
     and be passed the Numba types of those parameters.  It should return
     a function implementing *func* for the given types.
 
-    Here is an example implementing len() for tuple types::
+    Here is an example implementing len() for tuple types:
 
         @overload(len)
         def tuple_len(seq):
@@ -141,13 +141,13 @@ def register_jitable(*args, **kwargs):
     """
     Register a regular python function that can be executed by the python
     interpreter and can be compiled into a nopython function when referenced
-    by other jit'ed functions.  Can be used as::
+    by other jit'ed functions.  Can be used as:
 
         @register_jitable
         def foo(x, y):
             return x + y
 
-    Or, with compiler options::
+    Or, with compiler options:
 
         @register_jitable(_nrt=False) # disable runtime allocation
         def foo(x, y):
@@ -176,7 +176,7 @@ def overload_attribute(typ, attr, **kwargs):
 
     *kwargs* are passed to the underlying `@overload` call.
 
-    Here is an example implementing .nbytes for array types::
+    Here is an example implementing .nbytes for array types:
 
         @overload_attribute(types.Array, 'nbytes')
         def array_nbytes(arr):
@@ -226,7 +226,7 @@ def overload_method(typ, attr, **kwargs):
 
     *kwargs* are passed to the underlying `@overload` call.
 
-    Here is an example implementing .take() for array types::
+    Here is an example implementing .take() for array types:
 
         @overload_method(types.Array, 'take')
         def array_take(arr, indices):
@@ -252,7 +252,7 @@ def overload_classmethod(typ, attr, **kwargs):
 
 
     Here is an example implementing a classmethod on the Array type to call
-    ``np.arange()``::
+    ``np.arange()``:
 
         @overload_classmethod(types.Array, "make")
         def ov_make(cls, nitems):
@@ -260,7 +260,7 @@ def overload_classmethod(typ, attr, **kwargs):
                 return np.arange(nitems)
             return impl
 
-    The above code will allow the following to work in jit-compiled code::
+    The above code will allow the following to work in jit-compiled code:
 
         @njit
         def foo(n):
@@ -413,7 +413,7 @@ def intrinsic(*args, **kwargs):
     For unsupported operation, return None.
 
     Here is an example implementing a ``cast_int_to_byte_ptr`` that cast
-    any integer to a byte pointer::
+    any integer to a byte pointer:
 
         @intrinsic
         def cast_int_to_byte_ptr(typingctx, src):
@@ -481,7 +481,7 @@ def sentry_literal_args(pysig, literal_args, args, kwargs):
     literally typed for a function with the python signature *pysig* and the
     list of literal argument names in *literal_args*.
 
-    Alternatively, this is the same as::
+    Alternatively, this is the same as:
 
         SentryLiteralArgs(literal_args).for_pysig(pysig).bind(*args, **kwargs)
     """

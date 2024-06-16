@@ -21,7 +21,7 @@ def generate_usecase():
     return foo, call_foo
 
 
-if PYVERSION == (3, 12):
+if PYVERSION >= (3, 12):
     PY_START = sys.monitoring.events.PY_START
     PY_RETURN = sys.monitoring.events.PY_RETURN
     RAISE = sys.monitoring.events.RAISE

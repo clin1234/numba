@@ -910,7 +910,7 @@ class BaseContext(object):
 
         Note: this is used for recursive call.
 
-        In the mutual recursion case::
+        In the mutual recursion case:
 
             @njit
             def foo():

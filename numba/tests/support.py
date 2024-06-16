@@ -104,6 +104,11 @@ skip_unless_py312 = unittest.skipUnless(
     "needs Python 3.12"
 )
 
+skip_unless_py313 = unittest.skipUnless(
+    utils.PYVERSION == (3, 13),
+    "needs Python 3.13"
+)
+
 skip_if_32bit = unittest.skipIf(_32bit, "Not supported on 32 bit")
 
 IS_NUMPY_2 = numpy_support.numpy_version >= (2, 0)
@@ -118,6 +123,12 @@ def expected_failure_py311(fn):
 
 def expected_failure_py312(fn):
     if utils.PYVERSION == (3, 12):
+        return unittest.expectedFailure(fn)
+    else:
+        return fn
+
+def expected_failure_py313(fn):
+    if utils.PYVERSION == (3, 13):
         return unittest.expectedFailure(fn)
     else:
         return fn

@@ -635,7 +635,7 @@ def loop_nest(builder, shape, intp, order='C'):
         yield ()
     else:
         if order == 'F':
-            _swap = lambda x: x[::-1]
+            _swap = lambda x: x[:-1]
         else:
             _swap = lambda x: x
         with _loop_nest(builder, _swap(shape), intp) as indices:
@@ -843,14 +843,14 @@ def is_scalar_neg(builder, value):
 @contextmanager
 def early_exit_if(builder, stack: ExitStack, cond):
     """
-    The Python code::
+    The Python code:
 
         with contextlib.ExitStack() as stack:
             with early_exit_if(builder, stack, cond):
                 cleanup()
             body()
 
-    emits the code::
+    emits the code:
 
         if (cond) {
             <cleanup>
