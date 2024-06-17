@@ -10,7 +10,7 @@ from numba.core.utils import PYVERSION
 
 
 if PYVERSION in ((3, 12), (3, 13)):
-    from opcode import _inline_cache_entries
+    from opcode import _inline_cache_entries, opname, hasarg
     # Instruction/opcode length in bytes
     INSTR_LEN = 2
 elif PYVERSION in ((3, 9), (3, 10), (3, 11)):
@@ -246,6 +246,7 @@ def _unpack_opargs(code):
 
 
 # Adapted from Lib/dis.py
+'''''
 def _unpack_opargs(code):
     """
     Returns a 4-int-tuple of
@@ -300,6 +301,7 @@ def _unpack_opargs(code):
         extended_arg = 0
         yield (offset, op, arg, i)
         offset = i  # Mark inst offset at first extended
+'''''
 
 
 def _patched_opargs(bc_stream):
