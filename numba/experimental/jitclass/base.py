@@ -299,6 +299,12 @@ def _drop_ignored_attrs(dct):
     if '__hash__' in dct and dct['__hash__'] is None:
         drop.add('__hash__')
 
+    if '__firstlineno__' in dct:
+        drop.add('__firstlineno__')
+
+    if '__static_attributes__' in dct:
+        drop.add('__static_attributes__')
+
     for k in drop:
         del dct[k]
 
