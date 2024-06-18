@@ -140,7 +140,7 @@ class _ObjModeContextType(WithContext):
     is the same as passing Python objects into arguments of a nopython
     function.
 
-    Example:
+    Example::
 
         import numpy as np
         from numba import njit, objmode, types
@@ -162,7 +162,7 @@ class _ObjModeContextType(WithContext):
                 z = y
             return y, z
 
-    .. note: Known limitations:
+    .. note:: Known limitations:
 
         - with-block cannot use incoming list objects.
         - with-block cannot use incoming function objects.
@@ -172,10 +172,10 @@ class _ObjModeContextType(WithContext):
         - random number generator states do not synchronize; i.e. \
           nopython-mode and object-mode uses different RNG states.
 
-    .. note: When used outside of no-python mode, the context-manager has no
+    .. note:: When used outside of no-python mode, the context-manager has no
         effect.
 
-    .. warning: This feature is experimental.  The supported features may
+    .. warning:: This feature is experimental.  The supported features may
         change with or without notice.
 
     """

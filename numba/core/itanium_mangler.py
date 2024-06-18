@@ -7,7 +7,7 @@ The basics of the mangling scheme.
 
 We are hijacking the CXX mangling scheme for our use.  We map Python modules
 into CXX namespace.  A `module1.submodule2.foo` is mapped to
-`module1:submodule2:foo`.   For parameterized numba types, we treat them as
+`module1::submodule2::foo`.   For parameterized numba types, we treat them as
 templated types; for example, `array(int64, 1d, C)` becomes an
 `array<int64, 1, C>`.
 
@@ -110,7 +110,7 @@ def mangle_identifier(ident, template_params='', *, abi_tags=(), uid=None):
 
     Note:
 
-    This treats '.' as ':' in C++.
+    This treats '.' as '::' in C++.
     """
     if uid is not None:
         # Add uid to abi-tags

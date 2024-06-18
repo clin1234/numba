@@ -1349,7 +1349,7 @@ class TraceRunner(object):
         for i in range(count):
             v, k = state.pop(), state.pop()
             items.append((k, v))
-        state.append(inst, items=items[:-1], size=count, res=dct)
+        state.append(inst, items=items[::-1], size=count, res=dct)
         state.push(dct)
 
     def op_MAP_ADD(self, state, inst):

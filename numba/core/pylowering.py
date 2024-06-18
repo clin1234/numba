@@ -649,7 +649,7 @@ class PyLower(BaseLower):
         return ptr
 
     def _alloca_var(self, name, fetype):
-        # This is here for API compatibility with lowering.py:Lower.
+        # This is here for API compatibility with lowering.py::Lower.
         # NOTE: fetype is unused
         return self.alloca(name)
 

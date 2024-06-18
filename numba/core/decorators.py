@@ -256,7 +256,7 @@ def cfunc(sig, locals={}, cache=False, pipeline_class=None, **options):
     This decorator is used to compile a Python function into a C callback
     usable with foreign C libraries.
 
-    Usage:
+    Usage::
         @cfunc("float64(float64, float64)", nopython=True, cache=True)
         def add(a, b):
             return a + b

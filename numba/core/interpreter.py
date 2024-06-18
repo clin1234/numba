@@ -499,7 +499,7 @@ def _call_function_ex_replace_args_large(
         # original error message.
         raise UnsupportedError(errmsg)
     # Reverse the arguments so we get the correct order.
-    return total_args[:-1]
+    return total_args[::-1]
 
 
 def peep_hole_call_function_ex_to_call_function_kw(func_ir):
@@ -2463,7 +2463,7 @@ class Interpreter(object):
                 # and find their name strings
                 named_items = []
                 for x in inst.value.items:
-                    for y in self.current_block.body[:-1]:
+                    for y in self.current_block.body[::-1]:
                         if x == y.target:
                             self.current_block.remove(y)
                             named_items.append(y.value.value)
@@ -2548,7 +2548,7 @@ class Interpreter(object):
                 # and find their name strings
                 named_items = []
                 for x in inst.value.items:
-                    for y in self.current_block.body[:-1]:
+                    for y in self.current_block.body[::-1]:
                         if x == y.target:
                             self.current_block.remove(y)
                             named_items.append(y.value.value)
